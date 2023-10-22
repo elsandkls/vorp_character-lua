@@ -10,7 +10,6 @@ end)
 local function RemoveTagFromMetaPed(category)
     local __player = PlayerPedId()
 
-
     if category == "Coat" then
         PlayerClothing.CoatClosed = -1
         Citizen.InvokeNative(0xD710A5007C2AC539, __player, Config.HashList.CoatClosed, 0)
@@ -49,7 +48,7 @@ local function __ApplyShopItemToPed(comp, category)
     end
 end
 
-local function __CloseAll()
+local function __CloseAll(myboolean)
     Citizen.InvokeNative(0x706D57B0F50DA710, "MC_MUSIC_STOP")
     Citizen.InvokeNative(0x5A8B01199C3E79C3)
     local __player = PlayerPedId()
@@ -62,6 +61,9 @@ local function __CloseAll()
     RemoveImaps()
     ClearTimecycleModifier()
     if not IsInSecondChance then
+        if myboolean == true then 
+            TriggerEvent("vorp:CharacterSpawnedStartYourScripts")
+        end
         TriggerEvent("vorp:initNewCharacter")
     end
     SetEntityInvincible(__player, false)
@@ -73,10 +75,6 @@ local function __GetName(Result)
     local splitString = {}
     for i in string.gmatch(Result, "%S+") do
         splitString[#splitString + 1] = i
-    end
-
-    if splitString[1] == nil or splitString[2] == nil then
-        return 'missingname'
     end
 
     for _, word in ipairs(Config.BannedNames) do
@@ -175,7 +173,7 @@ function OpenCharCreationMenu(clothingtable)
                 TriggerServerEvent("vorp_character:Client:SecondChanceSave", PlayerSkin, PlayerClothing)
                 CachedComponents = PlayerClothing
                 CachedSkin = PlayerSkin
-                __CloseAll()
+                __CloseAll(false)
             end
 
             if (data.current.value == "name") then -- check if it has been built
@@ -198,9 +196,6 @@ function OpenCharCreationMenu(clothingtable)
                     if Result ~= nil and Result ~= "" then
                         if not __GetName(Result) then
                             TriggerEvent("vorp:TipRight", T.Inputs.banned, 4000)
-                            return
-                        elseif __GetName(Result) == 'missingname' then
-                            TriggerEvent("vorp:TipRight", T.Inputs.missingname, 4000)
                             return
                         end
                         FirstName, LastName = __GetName(Result)
@@ -246,7 +241,7 @@ function OpenCharCreationMenu(clothingtable)
                 TriggerServerEvent("vorpcharacter:saveCharacter", PlayerSkin, PlayerClothing, FirstName, LastName)
                 CachedComponents = PlayerClothing
                 CachedSkin = PlayerSkin
-                __CloseAll()
+                __CloseAll(true)
             end
         end, function(data, menu)
 
@@ -390,9 +385,10 @@ function OpenComponentMenu(table, category, label)
         end)
 end
 
-local height = 0
+local height = 1.0
 local heightLabel = T.MenuAppearance.element5.label
 function OpenAppearanceMenu(clothingtable)
+	local _player_ped_id = PlayerPedId()
     MenuData.CloseAll()
     local gender = GetGender()
     local elements = {
@@ -420,13 +416,17 @@ function OpenAppearanceMenu(clothingtable)
             label = heightLabel,
             tag = "height",
             type = "slider",
-            min = 0,
+            min = 1,
             comp = nil,
-            max = 3,
+            max = 7,
             value = 0,
-            short = 1,
-            tall = 3,
-            normal = 2,
+            a = 1, -- tiny
+            b = 2,
+            c = 3, -- small
+            d = 4, -- normal
+            f = 5, -- tall
+            g = 6,
+            e = 7, -- extra tall
             desc = imgPath:format("character_creator_appearance") .. "<br>" .. T.MenuAppearance.element5.desc
         },
         {
@@ -476,25 +476,44 @@ function OpenAppearanceMenu(clothingtable)
             if (data.current.value == "age") then
                 OpenAgeMenu(clothingtable)
             end
-            if (data.current.type == "slider" and not data.current.info) then
+            if (data.current.type == "slider" and not data.current.info) then                
                 for key, value in pairs(menu.data.elements) do
+                    print(" key, value ",  key, value, value.tag, data.current.tag  ) 
                     if value.tag == data.current.tag then
-                        if data.current.value == data.current.short then
+                        if data.current.value == data.current.a then
+                            height = 0.85
+                            heightLabel = T.MenuAppearance.tiny.." - "..height
+                        end
+                        if data.current.value == data.current.b then
+                            height = 0.90
+                            heightLabel = "Size: "..height
+                        end
+                        if data.current.value == data.current.c then
                             height = 0.95
-                            heightLabel = T.MenuAppearance.short
+                            heightLabel = T.MenuAppearance.short.." - "..height
                         end
-                        if data.current.value == data.current.normal then
+                        if data.current.value == data.current.d then
                             height = 1.0
-                            heightLabel = T.MenuAppearance.normal
+                            heightLabel = T.MenuAppearance.normal.." - "..height
                         end
-                        if data.current.value == data.current.tall then
+                        if data.current.value == data.current.e then
                             height = 1.05
-                            heightLabel = T.MenuAppearance.tall
+                            heightLabel = T.MenuAppearance.tall.." - "..height
                         end
-                        SetPedScale(PlayerPedId(), height)
+                        if data.current.value == data.current.f then
+                            height = 1.10
+                            heightLabel = "Size: "..height
+                        end
+                        if data.current.value == data.current.g then
+                            height = 1.15
+                            heightLabel = T.MenuAppearance.xtratall.." - "..height
+                        end
                         menu.setElement(key, "label", heightLabel)
                         menu.refresh()
                         PlayerSkin.Scale = height
+                        Citizen.InvokeNative(0x25ACFC650B65C538, _player_ped_id, height) -- SetPedScale
+                        print("vorp_character/menu.lua 488", _player_ped_id, height)
+                         
                         break
                     end
                 end
@@ -603,9 +622,7 @@ function OpenBodyMenu(table)
             desc = imgPath:format("character_creator_build") .. "<br>" .. T.MenuBody.element.desc ..
                 #Config.BodyType.Body
         },
-
-        {
-            -- skin color
+        {   -- skin color
             label = T.MenuBody.element2.label,
             type = "slider",
             value = 0,
@@ -617,7 +634,6 @@ function OpenBodyMenu(table)
                 #Config.BodyType.Waist .. ' ' .. T.MenuBody.element2.desc2
             -- load image same name as category
         },
-
         {
             -- skin color
             label = T.MenuBody.element3.label,

@@ -90,45 +90,47 @@ end, false)
 
 local sleeves = false
 RegisterCommand("sleeves", function()
-	if CachedComponents["Shirt"] == -1 then return end
-
+	local _player_ped_id = PlayerPedId()
+	if CachedComponents["Shirt"] == -1 then return end 
 	if not sleeves then
-		Citizen.InvokeNative(0x66B957AAC2EAAEAB, PlayerPedId(), CachedComponents["Shirt"],
+		Citizen.InvokeNative(0x66B957AAC2EAAEAB, _player_ped_id, CachedComponents["Shirt"],
 			joaat("Closed_Collar_Rolled_Sleeve"), 0, true, 1)
-		Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, false)
+		Citizen.InvokeNative(0xCC8CA3E88256E58F, _player_ped_id, 0, 1, 1, 1, false)
 		sleeves = true
 	else
-		Citizen.InvokeNative(0x66B957AAC2EAAEAB, PlayerPedId(), CachedComponents["Shirt"], joaat("base"), 0, true, 1)
-		Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, false)
+		Citizen.InvokeNative(0x66B957AAC2EAAEAB, _player_ped_id, CachedComponents["Shirt"], joaat("base"), 0, true, 1)
+		Citizen.InvokeNative(0xCC8CA3E88256E58F, _player_ped_id, 0, 1, 1, 1, false)
 		sleeves = false
 	end
 end, false)
 
 local sleeves2 = false
 RegisterCommand("sleeves2", function()
+	local _player_ped_id = PlayerPedId()
 	if CachedComponents["Shirt"] == -1 then return end
 	if not sleeves2 then
-		Citizen.InvokeNative(0x66B957AAC2EAAEAB, PlayerPedId(), CachedComponents["Shirt"],
+		Citizen.InvokeNative(0x66B957AAC2EAAEAB, _player_ped_id, CachedComponents["Shirt"],
 			joaat("open_collar_rolled_sleeve"), 0, true, 1)
-		Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, false)
+		Citizen.InvokeNative(0xCC8CA3E88256E58F, _player_ped_id, 0, 1, 1, 1, false)
 		sleeves2 = true
 	else
-		Citizen.InvokeNative(0x66B957AAC2EAAEAB, PlayerPedId(), CachedComponents["Shirt"], joaat("base"), 0, true, 1)
-		Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, false)
+		Citizen.InvokeNative(0x66B957AAC2EAAEAB, _player_ped_id, CachedComponents["Shirt"], joaat("base"), 0, true, 1)
+		Citizen.InvokeNative(0xCC8CA3E88256E58F, _player_ped_id, 0, 1, 1, 1, false)
 		sleeves2 = false
 	end
 end, false)
 
 local tuck = false
 RegisterCommand("tuck", function()
+	local _player_ped_id = PlayerPedId()
 	if CachedComponents["Boots"] == -1 then return end
 	if not tuck then
-		Citizen.InvokeNative(0x66B957AAC2EAAEAB, PlayerPedId(), CachedComponents["Boots"], -2081918609, 0, true, 1)
-		Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, false)
+		Citizen.InvokeNative(0x66B957AAC2EAAEAB, _player_ped_id, CachedComponents["Boots"], -2081918609, 0, true, 1)
+		Citizen.InvokeNative(0xCC8CA3E88256E58F, _player_ped_id, 0, 1, 1, 1, false)
 		tuck = true
 	else
-		Citizen.InvokeNative(0x66B957AAC2EAAEAB, PlayerPedId(), CachedComponents["Boots"], joaat("base"), 0, true, 1)
-		Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, false)
+		Citizen.InvokeNative(0x66B957AAC2EAAEAB, _player_ped_id, CachedComponents["Boots"], joaat("base"), 0, true, 1)
+		Citizen.InvokeNative(0xCC8CA3E88256E58F, _player_ped_id, 0, 1, 1, 1, false)
 		tuck = false
 	end
 end, false)

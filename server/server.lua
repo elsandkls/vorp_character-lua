@@ -1,6 +1,6 @@
 ---@diagnostic disable: undefined-global
-local VorpCore = {}
-local MaxCharacters = nil
+local VorpCore
+local MaxCharacters
 local VORPInv = exports.vorp_inventory:vorp_inventoryApi()
 local random
 
@@ -24,7 +24,7 @@ AddEventHandler("vorpcharacter:saveCharacter", function(skin, clothes, firstname
 	local playerCoords = Config.SpawnCoords.position
 	local playerHeading = Config.SpawnCoords.heading
 	VorpCore.getUser(_source).addCharacter(firstname, lastname, json.encode(skin), json.encode(clothes))
-	Wait(600)
+	Wait(600) 
 	TriggerClientEvent("vorp:initCharacter", _source, playerCoords, playerHeading, false)
 	-- wait for char to be made
 	SetTimeout(3000, function()
@@ -35,10 +35,9 @@ end)
 RegisterServerEvent("vorpcharacter:deleteCharacter")
 AddEventHandler("vorpcharacter:deleteCharacter", function(charid)
 	local _source = source
-	local webhook = Config.Webhook.deleteCharacter
+
 	local User = VorpCore.getUser(_source)
 	User.removeCharacter(charid)
-	VorpCore.AddWebhook('Character Deleted', webhook, 'Steam Name: '..GetPlayerName(_source)..' \n Character ID: '..charid)
 end)
 
 RegisterServerEvent("vorp_CharSelectedCharacter")

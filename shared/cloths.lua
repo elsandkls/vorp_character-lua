@@ -2,9 +2,7 @@ Data = {}
 -- todo add images to components , add categories
 
 
-function set_data_clothing( )
-
-Data.clothing = {
+Data.cloths = {
     male = {
         RingLh = {
             {
@@ -50028,10 +50026,3 @@ Data.clothing = {
         },
     },
 }
-
-end 
-
-
-CreateThread(function() 
-    set_data_clothing( )
-end)

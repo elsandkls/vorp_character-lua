@@ -12,16 +12,17 @@ local Peds         = {}
 local MalePed
 local FemalePed
 local stopLoop     = false
-
 -- GLOBALS
 CachedSkin         = {}
 CachedComponents   = {}
 T                  = Translation.Langs[Lang]
 
 
-AddEventHandler('onClientResourceStart', function(resourceName)
+AddEventHandler('onClientResourceStart', function(resourceName) 
 	if (GetCurrentResourceName() ~= resourceName) then
 		return
+	else 
+		print("onClientResourceStart")
 	end
 
 	if Config.DevMode then
@@ -32,6 +33,7 @@ end)
 
 --clean up
 AddEventHandler('onResourceStop', function(resourceName)
+	print("onResourceStop")
 	if (GetCurrentResourceName() ~= resourceName) then
 		return
 	end
@@ -43,7 +45,7 @@ AddEventHandler('onResourceStop', function(resourceName)
 	Citizen.InvokeNative(0x6BEFAA907B076859, textureId) -- remove texture
 	DeleteEntity(MalePed)
 	DeleteEntity(FemalePed)
-	DoScreenFadeIn(100)
+	DoScreenFadeIn(1000)
 	RemoveImaps()
 	Citizen.InvokeNative(0x706D57B0F50DA710, "MC_MUSIC_STOP")
 	MenuData.CloseAll()
@@ -53,14 +55,16 @@ end)
 
 
 RegisterNetEvent("vorpcharacter:spawnUniqueCharacter", function(myChar)
+	print("spawnUniqueCharacter")
 	myChars = myChar
-	CharSelect()
+	CharSelect(false)
 end)
 
 
 -- player is already in an instance
 RegisterNetEvent("vorpcharacter:selectCharacter")
 AddEventHandler("vorpcharacter:selectCharacter", function(myCharacters, mc, rand)
+	print("selectCharacter")
 	if #myCharacters < 1 then
 		return TriggerEvent("vorpcharacter:startCharacterCreator") -- if no chars then send back to creator
 	end
@@ -76,11 +80,22 @@ end)
 -- send all components in a table and update core through server
 RegisterNetEvent("vorpcharacter:updateCache")
 AddEventHandler("vorpcharacter:updateCache", function(skin, comps)
+	print("updateCache")
+	local _player_ped_id = PlayerPedId()
 	if skin then
 		if type(skin) == "table" then
 			CachedSkin = skin
 		else
 			CachedSkin = json.decode(skin)
+			if Config.CorrectScale == true then 
+				for key, value in pairs(CachedSkin) do 
+					if key == "Scale" then 
+						if value == 0.0 then 
+							value = 1.0 
+						end 
+					end 
+				end 
+			end 
 		end
 	end
 
@@ -97,6 +112,7 @@ end)
 -- send components one by one
 RegisterNetEvent("vorpcharacter:savenew")
 AddEventHandler("vorpcharacter:savenew", function(comps, skin)
+	print("savenew")
 	if comps then
 		local clothing
 		if type(comps) == "table" then
@@ -128,6 +144,7 @@ end)
 
 
 local function LoadFaceFeatures(ped, skin)
+	print("LoadFaceFeatures")
 	for key, value in pairs(FaceFeatures) do
 		Citizen.InvokeNative(0x5653AB26C82938CF, ped, value, skin[key])
 		Citizen.InvokeNative(0xAAB86462966168CE, ped, 1) --_CLEAR
@@ -135,6 +152,7 @@ local function LoadFaceFeatures(ped, skin)
 end
 
 local function LoadComps(ped, components)
+	print("LoadComps")
 	for category, value in pairs(components) do
 		if value ~= -1 then
 			Citizen.InvokeNative(0xD3A7B003ED343FD9, ped, value, false, false, false)
@@ -146,6 +164,7 @@ local function LoadComps(ped, components)
 end
 
 local function LoadAll(gender, ped, pedskin, components)
+	print("LoadAll")
 	RemoveMetaTags(ped)
 	IsPedReadyToRender()
 	Citizen.InvokeNative(0x0BFA1BD465CDFEFD, ped) -- _RESET_PED_COMPONENTS
@@ -166,13 +185,16 @@ local function LoadAll(gender, ped, pedskin, components)
 
 	LoadFaceFeatures(ped, skin)
 	Citizen.InvokeNative(0xCC8CA3E88256E58F, ped, false, true, true, true, false)
-	LoadComps(ped, components)
-	SetPedScale(ped, skin.Scale)
+	LoadComps(ped, components) 	
+	Citizen.InvokeNative(0x25ACFC650B65C538, ped, skin.Scale) -- SetPedScale
+	--print("vorp_character/client.lua 181",ped, skin.Scale) 
+
 	UpdateVariation(ped)
 	return skin
 end
 
 local function LoadCharacterSelect(ped, skin, components)
+	print("LoadCharacterSelect")
 	local gender = "Male"
 
 	if skin.sex and skin.sex ~= "mp_male" then
@@ -191,22 +213,24 @@ end
 
 
 function StartSwapCharacters()
+	print("StartSwapCharacters")
+	local _player_ped_id = PlayerPedId()
 	local options = Config.SpawnPosition[random].options
 	exports.weathersync:setMyWeather(options.weather.type, options.weather.transition, options.weather.snow) -- Disable weather and time sync and set a weather for this client.
 	exports.weathersync:setMyTime(options.time.hour, 0, 0, options.time.transition, true)
 	SetTimecycleModifier(options.timecycle.name)
 	Citizen.InvokeNative(0xFDB74C9CC54C3F37, options.timecycle.strenght)
-	FreezeEntityPosition(PlayerPedId(), true)
-	SetEntityVisible(PlayerPedId(), false)
-	SetEntityInvincible(PlayerPedId(), true)
-	SetEntityCoords(PlayerPedId(), options.playerpos, false, false, false, false)
+	FreezeEntityPosition(_player_ped_id, true)
+	SetEntityVisible(_player_ped_id, false)
+	SetEntityInvincible(_player_ped_id, true)
+	SetEntityCoords(_player_ped_id, options.playerpos, false, false, false, false)
 
-	if not HasCollisionLoadedAroundEntity(PlayerPedId()) then
+	if not HasCollisionLoadedAroundEntity(_player_ped_id) then
 		RequestCollisionAtCoord(options.playerpos.x, options.playerpos.y, options.playerpos.z)
 		Wait(2000)
 	end
 
-	while not HasCollisionLoadedAroundEntity(PlayerPedId()) do
+	while not HasCollisionLoadedAroundEntity(_player_ped_id) do
 		RequestCollisionAtCoord(options.playerpos.x, options.playerpos.y, options.playerpos.z)
 		Wait(100)
 	end
@@ -251,19 +275,21 @@ function StartSwapCharacters()
 end
 
 local function finish(boolean)
+	print("finish")
 	MenuData.CloseAll()
 	--RenderScriptCams(false, true, 5000, true, true)
-	if boolean then
+	if boolean then 
 		DoScreenFadeOut(1000)
 		Wait(5000)
 	end
-	CreateThread(function()
-		Wait(2000)
-		for _, value in pairs(Peds) do
+	CreateThread(function() 
+		Wait(1000)
+		for _, value in pairs(Peds) do 
 			DeleteEntity(value)
-		end
-
+			Wait(1000)
+		end 
 		DestroyAllCams(true)
+		Wait(1000)
 	end)
 	ClearTimecycleModifier()
 	Citizen.InvokeNative(0x706D57B0F50DA710, "MC_MUSIC_STOP")
@@ -272,6 +298,7 @@ end
 
 local imgPath = "<img style='max-height:532px;max-width:344px;float: center;'src='nui://vorp_character/images/%s.png'>"
 local function addNewelements(menu)
+	print("addNewelements")
 	local available = MaxCharacters - #myChars
 	for i = 1, available, 1 do
 		menu.addNewElement({
@@ -285,6 +312,7 @@ local function addNewelements(menu)
 end
 
 local function createMainCam()
+	print("createMainCam")
 	local data = Config.SpawnPosition[random].options
 	mainCam = CreateCamWithParams("DEFAULT_SCRIPTED_CAMERA", data.mainCam.x, data.mainCam.y, data.mainCam.z,
 		data.mainCam.rotx, data.mainCam.roty,
@@ -294,6 +322,7 @@ local function createMainCam()
 end
 
 function OpenMenuSelect()
+	print("OpenMenuSelect")
 	MenuData.CloseAll()
 	local elements = {}
 	local available = MaxCharacters - #myChars
@@ -342,8 +371,6 @@ function OpenMenuSelect()
 				menu.refresh()
 				SetCamActiveWithInterp(mainCam, LastCam, 3000, 500, 500)
 				created = true
-				stopLoop = true
-				N_0xdd1232b332cbb9e7(3, 1, 0)
 			end
 
 			if (data.current.value == "choose") then
@@ -422,20 +449,17 @@ function OpenMenuSelect()
 
 						if IsControlJustPressed(0, joaat("INPUT_CREATOR_DELETE")) then
 							N_0xdd1232b332cbb9e7(3, 1, 0)
+							stopLoop = true
 							break
 						end
 
 						if IsControlJustPressed(0, joaat("INPUT_FRONTEND_CANCEL")) then
 							N_0xdd1232b332cbb9e7(3, 1, 0)
 							pressed = false
+							stopLoop = true
 							return
 						end
 					end
-
-					if stopLoop then
-						return
-					end
-
 					DeleteEntity(data.current.Data.PedHandler)
 
 					-- * remove elements not needed * --
@@ -453,8 +477,8 @@ function OpenMenuSelect()
 
 					-- * if no characters left, go back to character creation * --
 					if #myChars == 0 or myChars == nil then
-						TriggerEvent("vorpcharacter:startCharacterCreator")
-						return finish(false)
+						finish(true)
+						return TriggerEvent("vorpcharacter:startCharacterCreator") 
 					end
 
 					createMainCam()
@@ -463,50 +487,63 @@ function OpenMenuSelect()
 					menu.refresh()
 					created = true
 					pressed = false
+					finish(false)
+					OpenMenuSelect() 
 				end
 			end
 
 			if (data.current.value == "create") then
-				finish(false)
+				finish(true)
+				stopLoop = true
 				Wait(2000)
-				TriggerEvent("vorpcharacter:startCharacterCreator")
+				return TriggerEvent("vorpcharacter:startCharacterCreator")
 			end
 
 			if (data.current.value == "select") then
+				print("selected char")
 				AnimpostfxPlay("RespawnPulse01")
+				finish(true) 
 				selectedChar = data.current.char
 				local dataConfig = Config.SpawnPosition[random].positions[selectedChar]
-				Citizen.InvokeNative(0x524B54361229154F, dataConfig.PedHandler, "", -1, false, "", -1.0, 0)
-				finish(true)
-				CharSelect()
+				--TaskStartScenarioInPlaceHash  
+				Citizen.InvokeNative(0x524B54361229154F, dataConfig.PedHandler, "", -1, false, "", -1.0, 0)   
+				Wait(2000)
 				stopLoop = true
-				N_0xdd1232b332cbb9e7(3, 1, 0) --UI_FEED_CLEAR_CHANNEL
+				CharSelect(true) 
 			end
 		end, function(menu, data)
+
 	end)
 end
 
-function CharSelect()
+function CharSelect(myboolean)
+	print("CharSelect") 
 	Wait(1000)
-	local charIdentifier = myChars[selectedChar].charIdentifier
-	local nModel = tostring(myChars[selectedChar].skin.sex)
-	CachedSkin = myChars[selectedChar].skin
-	CachedComponents = myChars[selectedChar].components
+	local charIdentifier = myChars[selectedChar].charIdentifier 
+	local nModel = tostring(myChars[selectedChar].skin.sex) 
+	CachedSkin = myChars[selectedChar].skin 
+	CachedComponents = myChars[selectedChar].components 
 	TriggerServerEvent("vorp_CharSelectedCharacter", charIdentifier)
-
+	print("call server vorp_CharSelectedCharacter")
+ 
 	RequestModel(nModel, false)
 	while not HasModelLoaded(nModel) do
-		Wait(0)
+		Wait(100)
 	end
 	Wait(1000)
+ 
 	SetPlayerModel(PlayerId(), joaat(nModel), false)
+	Wait(1000) 
 	SetModelAsNoLongerNeeded(nModel)
 	Wait(1000)
-	LoadPlayerComponents(PlayerPedId(), CachedSkin, CachedComponents)
+
+	local _player_ped_id = PlayerPedId() 
+	LoadPlayerComponents(_player_ped_id, CachedSkin, CachedComponents)
 	NetworkClearClockTimeOverride()
-	FreezeEntityPosition(PlayerPedId(), false)
-	SetEntityVisible(PlayerPedId(), true)
-	SetEntityInvincible(PlayerPedId(), false)
+	FreezeEntityPosition(_player_ped_id, false)
+	SetEntityVisible(_player_ped_id, true)
+	SetEntityInvincible(_player_ped_id, false)
+	 
 	local coords = myChars[selectedChar].coords
 	local heading
 	local playerCoords
@@ -518,30 +555,38 @@ function CharSelect()
 		heading = coords.heading
 	end
 	local isDead = myChars[selectedChar].isDead
+ 
 	TriggerEvent("vorp:initCharacter", playerCoords, heading, isDead) -- in here players will be removed from instance
-	DoScreenFadeIn(1000)
+	DoScreenFadeIn(4000)	
+	if myboolean == true then 
+		TriggerEvent("vorp:CharacterSpawnedStartYourScripts")
+		print("call vorp:CharacterSpawnedStartYourScripts")
+	end
 end
 
 RegisterNetEvent("vorpcharacter:reloadafterdeath")
 AddEventHandler("vorpcharacter:reloadafterdeath", function()
+	print("reloadafterdeath") 
 	Wait(5000)
 	LoadPlayer(joaat("CS_dutch"))
 	SetPlayerModel(PlayerId(), joaat("CS_dutch"), false)
 	IsPedReadyToRender()
-	if CachedSkin and CachedComponents then
-		LoadPlayerComponents(PlayerPedId(), CachedSkin, CachedComponents)
-	end
+	local _player_ped_id = PlayerPedId()
+	LoadPlayerComponents(_player_ped_id, CachedSkin, CachedComponents)
 	SetModelAsNoLongerNeeded(joaat("CS_dutch"))
-	--heal ped after death
-	local ped = PlayerPedId()
-	Citizen.InvokeNative(0xC6258F41D86676E0, ped, 0, 100)
+	--heal ped after death 
+	Citizen.InvokeNative(0xC6258F41D86676E0, _player_ped_id, 0, 100)
 	SetEntityHealth(ped, 600, 1)
-	Citizen.InvokeNative(0xC6258F41D86676E0, ped, 1, 100)
-	Citizen.InvokeNative(0x675680D089BFA21F, ped, 1065330373)
+	Citizen.InvokeNative(0xC6258F41D86676E0, _player_ped_id, 1, 100)
+	Citizen.InvokeNative(0x675680D089BFA21F, _player_ped_id, 1065330373)
+
+	Citizen.InvokeNative(0x25ACFC650B65C538, _player_ped_id, CachedSkin.Scale) -- SetPedScale 
 end)
 
 function LoadPlayerComponents(ped, skin, components)
+	print("LoadPlayerComponents")
 	local gender = "Male"
+	local _player_ped_id = PlayerPedId() 
 
 	if joaat(skin.sex) ~= GetEntityModel(ped) then
 		local skinS
@@ -554,8 +599,7 @@ function LoadPlayerComponents(ped, skin, components)
 		LoadPlayer(joaat(skinS))
 		SetPlayerModel(PlayerId(), joaat(skinS), false)
 		IsPedReadyToRender()
-		Citizen.InvokeNative(0xA91E6CF94404E8C9, ped)
-		ped = PlayerPedId()
+		Citizen.InvokeNative(0xA91E6CF94404E8C9, ped) 
 		SetModelAsNoLongerNeeded(joaat(skinS))
 		Custom = nil
 	end
@@ -600,16 +644,18 @@ function LoadPlayerComponents(ped, skin, components)
 	FaceOverlay("grime", skin.grime_visibility, skin.grime_tx_id, 0, 0, 1, 1.0, 0, 0, 0, 0, 0, 1, skin.grime_opacity)
 	Wait(200)
 	TriggerServerEvent("vorpcharacter:reloadedskinlistener") -- this event can be listened to whenever u need to listen for rc
-	Citizen.InvokeNative(0xD710A5007C2AC539, PlayerPedId(), 0x3F1F01E5, 0)
+	Citizen.InvokeNative(0xD710A5007C2AC539, _player_ped_id, 0x3F1F01E5, 0)
+
+	Citizen.InvokeNative(0x25ACFC650B65C538, _player_ped_id, skin.Scale) -- SetPedScale 
 end
 
 function FaceOverlay(name, visibility, tx_id, tx_normal, tx_material, tx_color_type, tx_opacity, tx_unk, palette_id,
 					 palette_color_primary, palette_color_secondary, palette_color_tertiary, var, opacity)
+	print("FaceOverlay", name)
 	local visibility = visibility or 0
 	local tx_id = tx_id or 0
 	local palette_color_primary = palette_color_primary or 0
 	local opacity = opacity or 1.0
-
 
 	for k, v in pairs(Config.overlay_all_layers) do
 		if v.name == name then
@@ -651,7 +697,8 @@ function FaceOverlay(name, visibility, tx_id, tx_normal, tx_material, tx_color_t
 	end
 end
 
-function StartOverlay()
+function StartOverlay()	
+	print("StartOverlay")
 	local ped = PlayerPedId()
 	local current_texture_settings = Config.texture_types.Male
 
@@ -683,13 +730,13 @@ function StartOverlay()
 	while not Citizen.InvokeNative(0x31DC8D3F216D8509, textureId) do -- wait till texture fully loaded
 		Wait(0)
 	end
-
 	Citizen.InvokeNative(0x0B46E25761519058, ped, joaat("heads"), textureId) -- apply texture to current component in category "heads"
 	Citizen.InvokeNative(0x92DAABA2C1C10B0E, textureId)                   -- update texture
 	UpdateVariation(ped)
 end
 
 RegisterCommand("rc", function(source, args, rawCommand)
+	print("RC command")
 	local __player = PlayerPedId()
 	local hogtied = Citizen.InvokeNative(0x3AA24CCC0D451379, __player)
 	local cuffed = Citizen.InvokeNative(0x74E559B3BC910685, __player)
@@ -698,26 +745,12 @@ RegisterCommand("rc", function(source, args, rawCommand)
 		if not next(CachedSkin) and not next(CachedComponents) then
 			return
 		end
-
 		if args[1] ~= "" then
 			Custom = args[1]
 		end
-
 		LoadPlayerComponents(__player, CachedSkin, CachedComponents)
+		Citizen.InvokeNative(0x25ACFC650B65C538, __player, CachedSkin.Scale) -- SetPedScale 
 	end
 end, false)
 
-
--- work arround to fix scale issues
-CreateThread(function()
-	while true do
-		local dead = IsEntityDead(PlayerPedId())
-		if CachedSkin then
-			local PlayerHeight = CachedSkin.Scale
-			if PlayerHeight and not dead then
-				SetPedScale(PlayerPedId(), PlayerHeight)
-			end
-		end
-		Wait(1000)
-	end
-end)
+ 

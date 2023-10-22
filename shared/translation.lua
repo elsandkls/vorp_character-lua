@@ -20,7 +20,7 @@ Translation.Langs = {
         PromptLabels = {
             promptselect = "| Character selected:  ~o~",
             promptselect2 = "~q~ | Money: ~o~",
-            promptlabel_select = " select the gender",
+            promptlabel_select = " select the gender gender",
             promptlabel_female = "Female character",
             promptlabel_male = "Male character",
             promptcreateNew = "Create new",
@@ -37,12 +37,11 @@ Translation.Langs = {
         },
         Inputs = {
             confirm = "Confirm",
-            placeholder = "Firstname Lastname",
+            placeholder = "firstname lastname",
             inputHeader = "CHOOSE CHARACTER NAME",
             title = "Letters only min 5 max 20",
-            banned = "You cant use this name as they are consider banned in this server",
-            notify = "Press ~INPUT_CREATOR_DELETE~ to erase this character or press ~INPUT_FRONTEND_CANCEL~ to cancel",
-            missingname = "You have provided incorrect first or last name"
+            banned = "you cant use those names as they are consider banned in this server",
+            notify = "Press Delete to erase this character , or  press backspace to cancel"
         },
         MenuCreation = {
             title = "Character Creation",
@@ -110,9 +109,11 @@ Translation.Langs = {
             element6 = { label = "Face", desc = "Choose face features" },
             element7 = { label = "Life style", desc = "choose life style of your character" },
             element8 = { label = "Make up", desc = "Choose make up" },
+            tiny = "Tiny",
             short = "Short",
             normal = "Normal",
             tall = "Tall",
+            xtratall = "Extra Tall",
         },
         MenuAge = {
             title = "Age",
@@ -142,7 +143,7 @@ Translation.Langs = {
             subtitle = "Sub Menu",
             element = { label = "Hair", desc = "Choose characters hair" },
             element2 = { label = "Beard", desc = "Choose characters beard" },
-            element3 = { label = "Beard stabble", desc = "Choose characters beard stabble" },
+            element3 = { label = "Bear stabble", desc = "Choose characters beard stabble" },
             element4 = { label = "Hair Accessories", desc = "Choose characters hair accessories" },
             element5 = { label = "Eye Brows", desc = "Choose characters eye brows" },
             element6 = { label = "Overlay", desc = "Choose characters hair overlay" },
@@ -247,8 +248,8 @@ Translation.Langs = {
             inputHeader = "Come si chiamerà il tuo personaggio?",
             title = "Solo lettere, minimo 5 massimo 20",
             banned = "Non puoi utilizzare quei nomi, sono considerati vietati in questo server",
-            notify = "Premi Canc per eliminare questo personaggio, o premi Backspace per annullare",
-            missingname = "Hai fornito un nome o cognome incorretto"
+            notify = "Premi Canc per eliminare questo personaggio, o premi Backspace per annullare"
+
         },
         MenuCreation = {
             title = "Menu personaggio",
@@ -312,7 +313,8 @@ Translation.Langs = {
             element2 = { label = "Eredità", desc = "Scegli l'eredità del tuo personaggio" },
             element3 = { label = "Capelli", desc = "Scegli il tipo di capelli del tuo personaggio" },
             element4 = { label = "Invecchiamento", desc = "Età del personaggio" },
-            element5 = { label = "Altezza", desc = "Scegli il tipo di corpo del tuo personaggio<br>Alto 3 Normale 2 Basso 1" },
+            element5 = { label = "Altezza",
+                desc = "Scegli il tipo di corpo del tuo personaggio<br>Alto 3 Normale 2 Basso 1" },
             element6 = { label = "Viso", desc = "Scegli le caratteristiche del viso" },
             element7 = { label = "Stile di vita", desc = "Scegli lo stile di vita del tuo personaggio" },
             element8 = { label = "Trucco", desc = "Scegli il trucco" },
@@ -454,8 +456,7 @@ Translation.Langs = {
             inputHeader = "Escolha o Nome do Personagem",
             title = "Apenas Letras min 5 max 20",
             banned = "Não pode utilizar os nomes escolhidos uma vez que estão banidos deste servidor.",
-            notify = "Pressione Delete para apagar este personagem, ou pressione Backspace para cancelar",
-            missingname = "Você forneceu um primeiro nome ou sobrenome incorreto"
+            notify = "Pressione Delete para apagar este personagem, ou pressione Backspace para cancelar"
         },
         MenuCreation = {
             title = "Criação do Personagem",
@@ -660,8 +661,7 @@ Translation.Langs = {
             inputHeader = "ESCOLHER NOME DO PERSONAGEM",
             title = "Somente letras, mínimo de 5 e máximo de 20 caracteres",
             banned = "Você não pode usar esses nomes, pois eles são considerados proibidos neste servidor",
-            notify = "Pressione Delete para excluir este personagem ou pressione Backspace para cancelar",
-            missingname = "Você forneceu um primeiro nome ou sobrenome incorreto"
+            notify = "Pressione Delete para excluir este personagem ou pressione Backspace para cancelar"
         },
         MenuCreation = {
             title = "Criação de Personagem",
@@ -669,7 +669,9 @@ Translation.Langs = {
             label = "Nome escolhido",
             element = { label = "Aparência", desc = "Escolha a aparência do seu personagem" },
             element2 = { label = "Roupas", desc = "Escolha as roupas do seu personagem" },
-            element3 = { label = "Escolha um Nome", desc = "Escolha um nome para o seu personagem, certifique-se de ler as regras para nomeação de personagens.<br> Se você não seguir as regras, este personagem será excluído sem aviso prévio" },
+            element3 = { label = "Escolha um Nome",
+                desc =
+                "Escolha um nome para o seu personagem, certifique-se de ler as regras para nomeação de personagens.<br> Se você não seguir as regras, este personagem será excluído sem aviso prévio" },
             element4 = { label = "Iniciar Jornada", desc = "Inicie sua jornada pressionando enter" },
         },
         MenuClothes = {
@@ -721,7 +723,8 @@ Translation.Langs = {
             element2 = { label = "Herança", desc = "Escolha a herança do seu personagem" },
             element3 = { label = "Cabelo", desc = "Escolha o tipo de cabelo do seu personagem" },
             element4 = { label = "Envelhecimento", desc = "Idade do personagem" },
-            element5 = { label = "Altura", desc = "Escolha o tipo de corpo do seu personagem<br> Alto 3 Normal 2 Baixo 1 " },
+            element5 = { label = "Altura",
+                desc = "Escolha o tipo de corpo do seu personagem<br> Alto 3 Normal 2 Baixo 1 " },
             element6 = { label = "Rosto", desc = "Escolha características do rosto" },
             element7 = { label = "Estilo de vida", desc = "Escolha o estilo de vida do seu personagem" },
             element8 = { label = "Maquiagem", desc = "Escolha a maquiagem" },
@@ -862,8 +865,7 @@ Translation.Langs = {
             inputHeader = " CHOISIR LE NOM DU PERSONNAGE ",
             title = "Lettres seulement min 5 max 20",
             banned = "vous ne pouvez pas utiliser ces noms car ils sont considérés comme interdits sur ce serveur",
-            notify = "Appuyez sur Supprimer pour supprimer ce personnage ou appuyez sur Retour arrière pour annuler",
-            missingname = "Vous avez fourni un prénom ou un nom de famille incorrect"
+            notify = "Appuyez sur Supprimer pour supprimer ce personnage ou appuyez sur Retour arrière pour annuler"
         },
         MenuCreation = {
             title = "Création de personnage",
@@ -1081,8 +1083,7 @@ Translation.Langs = {
             inputHeader = "CHARAKTERNAMEN WÄHLEN",
             title = "Nur Buchstaben min 5 max 20",
             banned = "Diese Namen dürfen nicht verwendet werden, da sie auf diesem Server verboten sind",
-            notify = "Drücke Entf, um diesen Charakter zu löschen oder drücke Rücktaste, um abzubrechen",
-            missingname = "Sie haben einen falschen Vornamen oder Nachnamen angegeben"
+            notify = "Drücke Entf, um diesen Charakter zu löschen oder drücke Rücktaste, um abzubrechen"
         },
         MenuCreation = {
             title = "Charaktererstellung",
@@ -1294,8 +1295,7 @@ Translation.Langs = {
             inputHeader = "Elige un nombre y apellido",
             title = "Solo letras min 5 max 20",
             banned = "No puedes usar ese nombre, ya que está prohibido en este servidor",
-            notify = "Presiona Supr para eliminar este personaje o presiona Retroceso para cancelar",
-            missingname = "Ha proporcionado un nombre o apellido incorrecto"
+            notify = "Presiona Supr para eliminar este personaje o presiona Retroceso para cancelar"
         },
         MenuCreation = {
             title = "Creación de personaje",

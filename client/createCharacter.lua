@@ -75,6 +75,7 @@ local defaultX, defaultY, defaultZ = -561.22, -3776.26, 239.16
 local defaultPitch, defaultRoll, defaultHeading, defaultZoom = -12.0, 0.00, -88.74, 45.00
 
 local function createCams()
+	print("createCams")
 	camera = CreateCamWithParams("DEFAULT_SCRIPTED_CAMERA", defaultX, defaultY, defaultZ, defaultPitch, defaultRoll,
 		defaultHeading, defaultZoom, false, 0)
 	cameraMale = CreateCamWithParams("DEFAULT_SCRIPTED_CAMERA", -560.21, -3775.38, 239.16,
@@ -87,14 +88,16 @@ end
 
 -- request char creator imaps
 local function Setup()
+	print("Setup")
+	local _player_ped_id = PlayerPedId()
 	Citizen.InvokeNative(0x513F8AA5BF2F17CF, -561.4, -3782.6, 237.6, 50.0, 20)                                 -- loadshpere
 	Citizen.InvokeNative(0x9748FA4DE50CCE3E, "AZL_RDRO_Character_Creation_Area", true, true)                   -- load sound
 	Citizen.InvokeNative(0x9748FA4DE50CCE3E, "AZL_RDRO_Character_Creation_Area_Other_Zones_Disable", false, true) -- load sound
 	RequestImapCreator()
 	SetClockTime(10, 00, 0)
 	SetTimecycleModifier('Online_Character_Editor')
-	SetEntityCoords(PlayerPedId(), -563.1345, -3775.811, 237.60, false, false, false, false) -- coords of where it spawns
-	while not HasCollisionLoadedAroundEntity(PlayerPedId()) do
+	SetEntityCoords(_player_ped_id, -563.1345, -3775.811, 237.60, false, false, false, false) -- coords of where it spawns
+	while not HasCollisionLoadedAroundEntity(_player_ped_id) do
 		Wait(500)
 	end
 	SelectionPeds()
@@ -106,6 +109,8 @@ end
 
 RegisterNetEvent("vorpcharacter:startCharacterCreator")
 AddEventHandler("vorpcharacter:startCharacterCreator", function()
+	print("startCharacterCreator")
+	local _player_ped_id = PlayerPedId()
 	PrepareMusicEvent("REHR_START")
 	Wait(100)
 	TriggerMusicEvent("REHR_START")
@@ -116,7 +121,7 @@ AddEventHandler("vorpcharacter:startCharacterCreator", function()
 	RegisterGenderPrompt()
 	Setup()
 	Wait(2000)
-	DoScreenFadeIn(1000)
+	DoScreenFadeIn(4000)
 	AnimpostfxPlay("RespawnPulse01")
 	local Label
 	Citizen.CreateThread(function()
@@ -196,7 +201,7 @@ AddEventHandler("vorpcharacter:startCharacterCreator", function()
 					IsInCharCreation = true
 				end
 			else
-				FreezeEntityPosition(PlayerPedId(), false)
+				FreezeEntityPosition(_player_ped_id, false)
 				DrawLightWithRange(-560.1646, -3782.066, 238.5975, 250, 250, 250, 7.0, 130.0)
 			end
 		end
@@ -204,6 +209,7 @@ AddEventHandler("vorpcharacter:startCharacterCreator", function()
 end)
 
 function RegisterGenderPrompt()
+	print("RegisterGenderPrompt")
 	local C = Config.keys
 	local str = T.PromptLabels.promptUpDownCam
 	down = PromptRegisterBegin()
@@ -245,6 +251,7 @@ function RegisterGenderPrompt()
 end
 
 function SelectionPeds()
+	print("SelectionPeds")
 	local fModel = "mp_female"
 	local mModel = "mp_male"
 
@@ -264,6 +271,7 @@ function SelectionPeds()
 end
 
 local function StartCam(x, y, z, heading, zoom)
+	print("StartCam",x, y, z, heading, zoom)
 	Citizen.InvokeNative(0x17E0198B3882C2CB, PlayerPedId())
 	DestroyAllCams(true)
 	local cam = CreateCamWithParams("DEFAULT_SCRIPTED_CAMERA", x, y, z, -11.32719, 0.0, heading, zoom, true, 0)
@@ -276,8 +284,9 @@ local heading = 93.2
 local zoom = 45.00
 
 local function adjustHeading(amount)
+	local _player_ped_id = PlayerPedId()
 	heading = heading + amount
-	SetPedDesiredHeading(PlayerPedId(), heading)
+	SetPedDesiredHeading(_player_ped_id, heading)
 end
 
 function AdjustZoom(amount)
@@ -286,6 +295,7 @@ function AdjustZoom(amount)
 end
 
 function StartPrompts()
+	print("StartPrompts")
 	while IsInCharCreation do
 		Wait(0)
 
@@ -321,6 +331,7 @@ function StartPrompts()
 end
 
 function DefaultPedSetup(ped, male)
+	print("DefaultPedSetup")
 	local compEyes
 	local compBody
 	local compHead
@@ -337,7 +348,7 @@ function DefaultPedSetup(ped, male)
 		compEyes = 928002221
 		compBody = tonumber("0x" .. Config.DefaultChar.Female[1].Body[1])
 		compHead = tonumber("0x" .. Config.DefaultChar.Female[1].Heads[1])
-		compLegs = tonumber("0x" .. Config.DefaultChar.Female[1].Legs[1])
+		compLegs = tonumber("0x" .. Config.DefaultChar.Female[1].Legs[2])
 	end
 
 	Citizen.InvokeNative(0x283978A15512B2FE, ped, true)
@@ -356,6 +367,7 @@ end
 
 Clothing = {}
 local function EnableCharCreationPrompts()
+	print("EnableCharCreationPrompts")
 	PromptSetEnabled(up, 1)
 	PromptSetVisible(up, 1)
 	PromptSetEnabled(down, 1)
@@ -369,7 +381,9 @@ local function EnableCharCreationPrompts()
 	PromptSetEnabled(zoomout, 1)
 	PromptSetVisible(zoomout, 1)
 end
+
 function CreatePlayerModel(model, cam)
+	print("CreatePlayerModel") 
 	local Gender = "male"
 	local ped = MalePed
 	PlayerSkin.sex = model
@@ -384,20 +398,25 @@ function CreatePlayerModel(model, cam)
 		PlayerSkin.albedo = joaat("mp_head_fr1_sc08_c0_000_ab")
 	end
 
+	-- After select male/female ped walks off screen
 	Wait(1000)
 	ClearPedTasksImmediately(ped, true)
 	TaskGoStraightToCoord(ped, -558.3258, -3781.111, 237.60, 1.0, 1, 1, 1, 1)
-	DoScreenFadeOut(3000)
-	Wait(3000)
-	SetEntityCoords(PlayerPedId(), -558.3258, -3781.111, 237.60, true, true, true, false) -- set player to start creation
-	SetEntityHeading(PlayerPedId(), 93.2)
-	LoadPlayer(model)
-	SetPlayerModel(PlayerId(), joaat(model), false)
-	SetModelAsNoLongerNeeded(model)
-	Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), false, true, true, true, false)
+	DoScreenFadeOut(1000)
+	Wait(3000)	 
+
+	-- Load player ped 
+	LoadPlayer(model) 
+	SetPlayerModel(PlayerId(), joaat(model), false) 
+	SetModelAsNoLongerNeeded(model)  
+	local _player_ped_id = PlayerPedId()
+	SetEntityCoords(_player_ped_id, -558.3258, -3781.111, 237.60, true, true, true, false) -- set player to start creation
+	SetEntityHeading(_player_ped_id, 93.2)  
+	Citizen.InvokeNative(0xCC8CA3E88256E58F, _player_ped_id, false, true, true, true, false)
+
 	RenderScriptCams(false, true, 3000, true, true, 0)
 	Wait(1000)
-	DefaultPedSetup(PlayerPedId(), isMale)
+	DefaultPedSetup(_player_ped_id, isMale)
 	SetCamActive(cam, false)
 	Wait(1000)
 	SetCamActive(cameraEditor, true)
@@ -415,36 +434,36 @@ function CreatePlayerModel(model, cam)
 	EnableCharCreationPrompts()
 
 	IsInCharCreation = true -- enable light
-
+	if Data.clothing == nil or type(Data.clothing) ~= table then 
+		set_data_clothing( )
+	end 
 	for category, value in pairs(Data.clothing[Gender]) do
 		local categoryTable = {}
-
 		for _, v in pairs(value) do
 			local typeTable = {}
-
 			for _, va in pairs(v) do
 				local hash = va.hashname
 				local hex = va.hash
-
 				table.insert(typeTable, { hash = hash, hex = hex })
 			end
-
 			table.insert(categoryTable, typeTable)
 		end
 		Clothing[category] = categoryTable
-	end
-
-	Citizen.InvokeNative(0xD710A5007C2AC539, PlayerPedId(), 0x3F1F01E5, 0)        -- remove meta tag
-	Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), true, true, true, false) -- update variation
-	SetEntityVisible(PlayerPedId(), true)
-	SetEntityInvincible(PlayerPedId(), true)
-	Citizen.InvokeNative(0x25ACFC650B65C538, PlayerPedId(), 1.0) -- scale
-	DoScreenFadeIn(3000)
+	end 
+	Citizen.InvokeNative(0xD710A5007C2AC539, _player_ped_id, 0x3F1F01E5, 0)        -- remove meta tag
+	Citizen.InvokeNative(0xCC8CA3E88256E58F, _player_ped_id, true, true, true, false) -- update variation
+	SetEntityVisible(_player_ped_id, true)
+	SetEntityInvincible(_player_ped_id, true)
+	Citizen.InvokeNative(0x25ACFC650B65C538, _player_ped_id, 1.0) -- SetPedScale 
+	DoScreenFadeIn(4000)
+	print("Loading Create Character Menu")
 	OpenCharCreationMenu(Clothing)
 end
 
 RegisterNetEvent('vorp_character:Server:SecondChance', function(skin, comps)
-	DoScreenFadeOut(3000)
+	print("SecondChance")
+	local _player_ped_id = PlayerPedId()
+	DoScreenFadeOut(1000)
 	Wait(3000)
 	IsInSecondChance = true
 	local Gender = "male"
@@ -461,8 +480,8 @@ RegisterNetEvent('vorp_character:Server:SecondChance', function(skin, comps)
 	EnableCharCreationPrompts()
 	IsInCharCreation = true
 
-	SetEntityCoords(PlayerPedId(), -558.3258, -3781.111, 237.60, true, true, true, false) -- set player to start creation
-	SetEntityHeading(PlayerPedId(), 93.2)
+	SetEntityCoords(_player_ped_id, -558.3258, -3781.111, 237.60, true, true, true, false) -- set player to start creation
+	SetEntityHeading(_player_ped_id, 93.2)
 	Wait(1000)
 	cameraEditor = CreateCamWithParams("DEFAULT_SCRIPTED_CAMERA", -560.1333, -3780.923, 239.44,
 		-11.32719, 0.0, -90.96, defaultZoom, false, 0)
@@ -489,11 +508,11 @@ RegisterNetEvent('vorp_character:Server:SecondChance', function(skin, comps)
 		end
 		Clothing[category] = categoryTable
 	end
-	DoScreenFadeIn(3000)
+	DoScreenFadeIn(4000)
 	CreateThread(function()
 		while IsInCharCreation do
 			Wait(0)
-			FreezeEntityPosition(PlayerPedId(), false)
+			FreezeEntityPosition(_player_ped_id, false)
 			DrawLightWithRange(-560.1646, -3782.066, 238.5975, 250, 250, 250, 7.0, 130.0)
 		end
 	end)

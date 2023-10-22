@@ -12,9 +12,10 @@ function UpdateVariation(ped)
 end
 
 function IsPedReadyToRender()
-    Citizen.InvokeNative(0xA0BC8FAED8CFEB3C, PlayerPedId())
-    while not Citizen.InvokeNative(0xA0BC8FAED8CFEB3C, PlayerPedId()) do
-        Citizen.InvokeNative(0xA0BC8FAED8CFEB3C, PlayerPedId())
+	local _player_ped_id = PlayerPedId()
+    Citizen.InvokeNative(0xA0BC8FAED8CFEB3C, _player_ped_id)
+    while not Citizen.InvokeNative(0xA0BC8FAED8CFEB3C, _player_ped_id) do
+        Citizen.InvokeNative(0xA0BC8FAED8CFEB3C, _player_ped_id)
         Wait(0)
     end
 end
@@ -125,7 +126,8 @@ function GetHair(gender, category)
 end
 
 function GetGender()
-    if not IsPedMale(PlayerPedId()) then
+	local _player_ped_id = PlayerPedId()
+    if not IsPedMale(_player_ped_id) then
         return "Female"
     end
 
@@ -168,7 +170,7 @@ function toggleOverlayChange(name, visibility, tx_id, tx_normal, tx_material, tx
         end
     end
 
-    local ped = PlayerPedId()
+    local _player_ped_id = PlayerPedId()
     local gender = GetGender()
     local current_texture_settings = Config.texture_types[gender]
 
@@ -200,6 +202,6 @@ function toggleOverlayChange(name, visibility, tx_id, tx_normal, tx_material, tx
     end
 
     Citizen.InvokeNative(0x92DAABA2C1C10B0E, textureId)                           -- update texture
-    Citizen.InvokeNative(0x0B46E25761519058, ped, joaat("heads"), textureId)      -- apply texture to current component in category "heads"
-    Citizen.InvokeNative(0xCC8CA3E88256E58F, ped, false, true, true, true, false) -- refresh ped components
+    Citizen.InvokeNative(0x0B46E25761519058, _player_ped_id, joaat("heads"), textureId)      -- apply texture to current component in category "heads"
+    Citizen.InvokeNative(0xCC8CA3E88256E58F, _player_ped_id, false, true, true, true, false) -- refresh ped components
 end
